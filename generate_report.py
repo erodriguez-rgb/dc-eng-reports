@@ -23,54 +23,10 @@ def fetch_image(url):
         return None
 
 def add_inline_image(para, img_bytes, width_emu, height_emu):
-    """Crea un inline drawing element con la imagen"""
+    """Agrega imagen inline al párrafo usando el API nativo de python-docx"""
     image_stream = io.BytesIO(img_bytes)
-    pic_rId = para.part.relate_to(
-        image_stream,
-        'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image',
-        is_external=False
-    )
-
-    import random
-    doc_pr_id = random.randint(200, 9999)
-
-    inline_xml = f'''<w:r xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
-      <w:rPr><w:noProof/></w:rPr>
-      <w:drawing>
-        <wp:inline xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
-                   distT="0" distB="0" distL="0" distR="0">
-          <wp:extent cx="{width_emu}" cy="{height_emu}"/>
-          <wp:effectExtent l="0" t="0" r="0" b="0"/>
-          <wp:docPr id="{doc_pr_id}" name="Photo{doc_pr_id}"/>
-          <wp:cNvGraphicFramePr>
-            <a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/>
-          </wp:cNvGraphicFramePr>
-          <a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">
-            <a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">
-              <pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">
-                <pic:nvPicPr>
-                  <pic:cNvPr id="0" name="photo"/>
-                  <pic:cNvPicPr><a:picLocks noChangeAspect="1" noChangeArrowheads="1"/></pic:cNvPicPr>
-                </pic:nvPicPr>
-                <pic:blipFill>
-                  <a:blip r:embed="{pic_rId}" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"/>
-                  <a:stretch><a:fillRect/></a:stretch>
-                </pic:blipFill>
-                <pic:spPr bwMode="auto">
-                  <a:xfrm><a:off x="0" y="0"/><a:ext cx="{width_emu}" cy="{height_emu}"/></a:xfrm>
-                  <a:prstGeom prst="rect"><a:avLst/></a:prstGeom>
-                  <a:noFill/>
-                </pic:spPr>
-              </pic:pic>
-            </a:graphicData>
-          </a:graphic>
-        </wp:inline>
-      </w:drawing>
-    </w:r>'''
-
-    run_elem = etree.fromstring(inline_xml)
-    para._p.append(run_elem)
-    return pic_rId
+    run = para.add_run()
+    run.add_picture(image_stream, width=Emu(width_emu), height=Emu(height_emu))
 
 def generar_informe(data):
     """Genera el DOCX con los datos del informe"""
