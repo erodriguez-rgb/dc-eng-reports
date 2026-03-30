@@ -4,11 +4,13 @@ DC Eng Reports - Servidor Flask para generación de informes DOCX
 """
 
 from flask import Flask, request, jsonify, send_file, Response
+from flask_cors import CORS
 import json, os, sys, io, tempfile, base64
 from generate_report import generar_informe
 from generate_monthly_report import generar_informe_mensual
 
 app = Flask(__name__)
+CORS(app)  # Habilitar CORS para peticiones desde Base44 (app.base44.com)
 
 # Token de seguridad
 API_TOKEN = os.environ.get('API_TOKEN', 'changeme')

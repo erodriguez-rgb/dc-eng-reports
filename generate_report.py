@@ -119,16 +119,19 @@ def generar_informe(data):
 
     # === TABLE 0: Weather ===
     weather_table = doc.tables[0]
-    cielo = data.get('cielo', '')
+    # Soportar cielo_am/cielo_pm separados O cielo combinado
+    cielo_am = data.get('cielo_am', data.get('cielo', 'Soleado'))
+    cielo_pm = data.get('cielo_pm', data.get('cielo', 'Soleado'))
 
-    for cell_idx in [1, 2]:
+    # Cell[1] = AM, Cell[2] = PM (tabla 5x3 del template real)
+    for cell_idx, cielo_val in [(1, cielo_am), (2, cielo_pm)]:
         cell = weather_table.rows[1].cells[cell_idx]
         for para in cell.paragraphs:
             for run in para.runs: run.text = ''
         if cell.paragraphs[0].runs:
-            cell.paragraphs[0].runs[0].text = cielo
+            cell.paragraphs[0].runs[0].text = cielo_val
         else:
-            cell.paragraphs[0].add_run(cielo)
+            cell.paragraphs[0].add_run(cielo_val)
 
     lluvia_cell = weather_table.rows[2].cells[1]
     lluvia_val = data.get('lluvia_texto', 'Sí' if data.get('lluvia_ocurrio') else 'No')
@@ -154,15 +157,17 @@ def generar_informe(data):
     else:
         dur_cell.paragraphs[0].add_run('Duración: ' + data.get('lluvia_duracion', 'N/A'))
 
-    impacto = data.get('lluvia_impacto', 'No tuvo impacto.')
-    for cell_idx in [1, 2]:
+    # Soportar impacto_am/impacto_pm separados O impacto combinado
+    impacto_am = data.get('impacto_am', data.get('lluvia_impacto', 'No tuvo impacto.'))
+    impacto_pm = data.get('impacto_pm', data.get('lluvia_impacto', 'No tuvo impacto.'))
+    for cell_idx, impacto_val in [(1, impacto_am), (2, impacto_pm)]:
         cell = weather_table.rows[4].cells[cell_idx]
         for para in cell.paragraphs:
             for run in para.runs: run.text = ''
         if cell.paragraphs[0].runs:
-            cell.paragraphs[0].runs[0].text = impacto
+            cell.paragraphs[0].runs[0].text = impacto_val
         else:
-            cell.paragraphs[0].add_run(impacto)
+            cell.paragraphs[0].add_run(impacto_val)
 
     # === TABLE 1: Activities ===
     act_table = doc.tables[1]
